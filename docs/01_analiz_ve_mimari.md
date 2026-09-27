@@ -40,7 +40,7 @@ varsayım yapmıyorum.
 | Python kütüphaneleri | Hiçbiri kurulu değil | Kodlama aşamasında `requirements.txt` ile kurulacak |
 | Open Hızlı Teklif | **v3**, MSI ile kurulu: `C:\Program Files\OPEN YAZILIM\Open Hizli Teklif\Open Hizli Teklif.exe` | Robot programı bu yoldan veya Başlat menüsü kısayolundan açacak |
 | Open Acentem | **V3** kurulu (`C:\Program Files (x86)\OPEN YAZILIM\Open Acentem`) | Şimdilik kapsam dışı; ileride poliçe takibi için kullanılabilir |
-| Doğanium Hızlı Teklif | Kurulu (`C:\Program Files (x86)\Doğanium Hızlı Teklif`) | Kullanılıyor mu? (Soru) |
+| Doğanium Hızlı Teklif | Kurulu (`C:\Program Files (x86)\Doğanium Hızlı Teklif`) | **Kapsam dışı** (kullanıcı: robot yalnızca Open Hızlı Teklif kullanacak) |
 | Ölçüm anında Open Hızlı Teklif | Çalışmıyordu | – |
 | Bilgisayar türü | Günlük kullanım bilgisayarı gibi görünüyor (FreeCAD, FileZilla vb.) | Robot çalışırken fare/klavye kullanılamaz → ayrı PC/VM kararı gerekli |
 | **Karar (kullanıcı)** | Üretimde robot **ayrı bir bilgisayar veya sanal makinede** çalışacak; geliştirme ve deneme şimdilik bu bilgisayarda | Kurulum adımları taşınabilir tutulacak (tek `requirements.txt` + kurulum betiği) |
