@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+ortam_raporu_*.json
+data/
+screenshots/
+*.db
