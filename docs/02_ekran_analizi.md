@@ -98,8 +98,8 @@ Araç Bilgileri: `Kullanım Tarzı`, `Marka`, `Tip`, `Model Yılı`, `Kasko Değ
 - **Komisyon sütunları (`T.Koms` vb.) müşteriye asla gönderilmez.**
 - Not satırı: "Şirket ismi KIRMIZI olduğunda Yeni JET API sisteminden fiyat alınmıştır."
 - Araç çubuğu: `Diğer Fiyatları Göster`, `Jet API ile Fiyat Çalış` (açılır liste), `Alt Fiyat`,
-  **`PDF Aktar`**, yeşil (muhtemelen **Excel**) simgesi, kopyala, `+`, kırmızı simge.
-  → Sonuç okumada **Excel dışa aktarma** en güvenilir yol olabilir (doğrulanacak).
+  **`PDF Aktar`**, yeşil simge (kullanıcı: dışa aktarma yalnızca PDF), kopyala, `+`, kırmızı simge.
+  → Sonuç okumada **PDF Aktar** çıktısı kullanılacak (bkz. Kullanıcı cevapları).
 - ⚠️ **Satırlardaki 4 simge** (biri kalem/imza görünümlü) ne işe yarıyor bilinmiyor; biri
   poliçeleştirme olabilir. Öğrenilene kadar robot bu simge sütunlarına **hiç tıklamaz**.
 
@@ -115,4 +115,39 @@ Araç Bilgileri: `Kullanım Tarzı`, `Marka`, `Tip`, `Model Yılı`, `Kasko Değ
 6. `Müşteri` ← `{{AD_SOYAD}}`, `Açıklama` ← `TALEP-{{TALEP_ID}}`.
 7. Her alan OCR ile geri okunup doğrulanır.
 8. `Sorguyu Başlat` → `Trafik` sütunu dolana / zaman aşımına kadar bekle.
-9. `Teklif ID` + tablo okunur (Excel dışa aktarma veya OCR), plaka tekrar doğrulanır.
+9. `Araç Bilgileri Sorgulanıyor` penceresi kapanana kadar bekle (bkz. Ekran 03).
+10. Fiyatlar okunur (PDF Aktar veya OCR), plaka tekrar doğrulanır.
+11. `Yeni Sorgu Kaydet` → `Teklif ID` okunur ve talebe bağlanır.
+
+---
+
+## Ekran 03 – Form dolu, araç bilgisi sorgulanıyor
+
+> Ekran görüntüsü gerçek kişi verisi (TC, doğum tarihi, belge seri) içerdiği için **depoya
+> eklenmedi**; yalnızca gözlemler yazıldı.
+
+**Gözlemler**
+- Doldurulan alanlar: `Plaka`, `TC / Vergi`, `Belge Seri` (2 harf seri + 6 hane no), `Doğum T.`,
+  `Müşteri`; `İl Seçin` / `İlçe Seçin` dolu (kendiliğinden mi dolduğu – soru).
+- `Doğum T.` yanında **yeşil onay işareti** belirdi → muhtemelen kimlik/doğum tarihi doğrulandı.
+  Robot bu işareti **doğrulama sinyali** olarak kullanabilir (görüntü tanıma).
+- Ekran ortasında açılır pencere: **`Araç Bilgileri Sorgulanıyor...` / `Lütfen bekleyiniz`**,
+  altta geçen süre sayacı (`00:10`), sağ üstte kırmızı **X** kapatma düğmesi.
+  → Robot bu yazıyı OCR ile görünce **bekler**; pencere kaybolunca devam eder.
+  → Kullanıcı notu: bu sırada internet sorunu vardı, sorgu uzadı.
+- Araç Bilgileri sekmesi (Marka, Tip, Model Yılı…) sorgu bitmeden boş.
+- Tablodaki `SOMPO` satırı sarı vurgulu (seçili satır).
+
+**Robot kuralı – araç sorgusu bekleme**
+- `Araç Bilgileri Sorgulanıyor` görünürken bekle, en fazla `arac_sorgu_zaman_asimi_sn` (config, ör. 60 sn).
+- Süre aşılırsa: X ile kapat → bir kez yeniden dene (config `retry`) → yine olmazsa
+  **MANUEL MÜDAHALE – Araç sorgusu cevap vermedi** + ekran görüntüsü (maskeli).
+- Sorgu bitince `Marka` / `Model Yılı` dolu mu kontrol et; boşsa aynı hata yolu.
+
+## Kullanıcı cevapları (27.09.2026)
+- Satırlardaki 4 simge **poliçe kesmiyor**. (Yine de robot bunlara tıklamaz; gerek yok.)
+- Dışa aktarma **yalnızca PDF** (`PDF Aktar`). → Sonuç okuma önceliği:
+  1) `PDF Aktar` ile PDF kaydet → PDF metnini oku (metin tabanlıysa OCR'dan güvenilir),
+  2) tablo bölgesini OCR ile oku. İkisi karşılaştırılarak çapraz doğrulama yapılabilir.
+- Sorgu bitince **`Yeni Sorgu Kaydet`**'e basılıyor → robot da sonuçları okuduktan sonra basar,
+  ardından `Teklif ID` değerini okur.
