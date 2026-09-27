@@ -43,6 +43,7 @@ varsayım yapmıyorum.
 | Doğanium Hızlı Teklif | Kurulu (`C:\Program Files (x86)\Doğanium Hızlı Teklif`) | Kullanılıyor mu? (Soru) |
 | Ölçüm anında Open Hızlı Teklif | Çalışmıyordu | – |
 | Bilgisayar türü | Günlük kullanım bilgisayarı gibi görünüyor (FreeCAD, FileZilla vb.) | Robot çalışırken fare/klavye kullanılamaz → ayrı PC/VM kararı gerekli |
+| **Karar (kullanıcı)** | Üretimde robot **ayrı bir bilgisayar veya sanal makinede** çalışacak; geliştirme ve deneme şimdilik bu bilgisayarda | Kurulum adımları taşınabilir tutulacak (tek `requirements.txt` + kurulum betiği) |
 
 ### Yapmanız gereken (5 dakika)
 
@@ -407,6 +408,8 @@ uygulaması) üzerinde workflow motoru testi. Uçtan uca: WhatsApp Cloud API tes
 |---|---|---|
 | **2FA / oturum zaman aşımı** | Giriş otomatikleşmeyebilir | Oturumu açık tut; giriş ekranı algılanınca size bildirim + MANUEL |
 | Windows oturumu kilitli/ekran koruyucu | Ekran görülemez, klavye/fare çalışmaz | Robot PC'sinde kilitlenme kapalı ayrı kullanıcı oturumu (veya VM/RDP'de ayrı oturum) |
+| Sanal makineye **RDP** ile bağlanıp pencere küçültülünce ekran çizilmez | Robot ekranı göremez | VM konsolu/otomatik oturum açma veya RDP oturumunu kapatırken `tscon` ile konsola devretme; kurulumda ayrıca belgelenecek |
+| Yeni bilgisayarda Open Hızlı Teklif lisansı / 2FA | Robot makinesinde giriş yapılamaz | Lisansın ikinci makineye taşınabilirliği Open Yazılım'a sorulmalı |
 | Program güncellemesi ekranı değiştirir | Locator kırılır | Çoklu locator + "ekran değişti" algılama + yeniden eğitim |
 | Sonuç tablosu küçük yazı/kaydırmalı | OCR hatası | Dışa aktarma menüsü; OCR'da ön işleme + doğrulayıcılar |
 | Sigorta şirketi cevap vermez / yavaş | Eksik sonuç | Zaman aşımı + kısmi sonuçla "gelenler" veya MANUEL (sizin tercihiniz) |
