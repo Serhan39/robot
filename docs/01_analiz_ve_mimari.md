@@ -28,6 +28,22 @@ varsayım yapmıyorum.
 | Open Hızlı Teklif ekranları ve kullanım adımları | **Bilinmiyor** → ekran görüntüleri + ekran kaydı (sizden) |
 | `robot` deposu | Boş (ilk commit bu rapor) |
 
+### Robot bilgisayarı – ölçüm sonucu (27.09.2026, `ortam_analizi.py`)
+
+| Bilgi | Sonuç | Değerlendirme |
+|---|---|---|
+| Windows | **Windows 11** (10.0.26200), 64-bit | Uygun |
+| Ekran | **1920×1080**, tek monitör, **%100 ölçek (96 DPI)** | OCR ve görüntü tanıma için ideal |
+| Python | **3.13.15** (64-bit) | Uygun |
+| Node.js | 24.12.0 | Gerekmiyor, sorun değil |
+| Tesseract OCR | **Kurulu değil** | Kodlama aşamasında kurulacak (Türkçe paketiyle) |
+| Python kütüphaneleri | Hiçbiri kurulu değil | Kodlama aşamasında `requirements.txt` ile kurulacak |
+| Open Hızlı Teklif | **v3**, MSI ile kurulu: `C:\Program Files\OPEN YAZILIM\Open Hizli Teklif\Open Hizli Teklif.exe` | Robot programı bu yoldan veya Başlat menüsü kısayolundan açacak |
+| Open Acentem | **V3** kurulu (`C:\Program Files (x86)\OPEN YAZILIM\Open Acentem`) | Şimdilik kapsam dışı; ileride poliçe takibi için kullanılabilir |
+| Doğanium Hızlı Teklif | Kurulu (`C:\Program Files (x86)\Doğanium Hızlı Teklif`) | Kullanılıyor mu? (Soru) |
+| Ölçüm anında Open Hızlı Teklif | Çalışmıyordu | – |
+| Bilgisayar türü | Günlük kullanım bilgisayarı gibi görünüyor (FreeCAD, FileZilla vb.) | Robot çalışırken fare/klavye kullanılamaz → ayrı PC/VM kararı gerekli |
+
 ### Yapmanız gereken (5 dakika)
 
 Open Hızlı Teklif'in **kurulu olduğu Windows bilgisayarda**:
