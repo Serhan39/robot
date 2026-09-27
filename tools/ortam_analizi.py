@@ -1,16 +1,15 @@
-"""FAZ 1-2 ortam analizi.
+"""FAZ 1 ortam analizi.
 
-Open Hizli Teklif'in kurulu oldugu Windows bilgisayarda calistirin:
+Robotun calisacagi Windows bilgisayarda calistirin:
 
-    python tools/ortam_analizi.py --pencere "Teklif"
+    python tools/ortam_analizi.py
 
-Toplananlar: Windows/Python/Node surumleri, ekran ve DPI, kurulu RPA/OCR
-kutuphaneleri, Open Hizli Teklif ile ilgili surecler/kisayollar ve (pywinauto
-kuruluysa) eslesen pencerenin UI Automation agaci.
+Toplananlar: Windows/Python/Node surumleri, ekran cozunurlugu ve DPI olcegi,
+kurulu ekran okuma/OCR/klavye-fare kutuphaneleri, Open Hizli Teklif'in kurulu
+oldugu yer ve calisip calismadigi.
 
-Okunmayanlar: alan degerleri (ValuePattern), sifreler, pano. 6+ haneli sayi
-dizileri maskelenir. Yine de ciktiyi gondermeden once gozden gecirin ve analizi
-gercek musteri verisi gorunmeyen bir ekranda yapin.
+Open Hizli Teklif'in icine girilmez: programa, dosyalarina veya pencere
+icerigine dokunulmaz, ekran goruntusu alinmaz.
 """
 
 import argparse
@@ -21,7 +20,6 @@ import io
 import json
 import os
 import platform
-import re
 import shutil
 import subprocess
 import sys
@@ -31,19 +29,10 @@ from pathlib import Path
 ANAHTAR_KELIMELER = ("open", "hizli", "hızlı", "teklif")
 
 KUTUPHANELER = (
-    "pywinauto", "comtypes", "uiautomation", "pyautogui", "pynput", "psutil",
+    "pyautogui", "pynput", "psutil",
     "cv2", "PIL", "mss", "pytesseract", "paddleocr", "easyocr",
     "playwright", "selenium", "fastapi", "sqlalchemy", "keyring", "cryptography",
 )
-
-_UZUN_SAYI = re.compile(r"\d{6,}")
-
-
-def maskele(metin):
-    if not metin:
-        return metin
-    return _UZUN_SAYI.sub(lambda m: "*" * (len(m.group()) - 2) + m.group()[-2:], str(metin))
-
 
 def komut(args):
     try:
@@ -138,68 +127,8 @@ def _gez(dizin, derinlik):
         return
 
 
-def ust_pencereler():
-    try:
-        from pywinauto import Desktop
-    except ImportError:
-        return "<pywinauto kurulu degil: pip install pywinauto>"
-    pencereler = []
-    for pencere in Desktop(backend="uia").windows():
-        bilgi = pencere.element_info
-        if bilgi.name:
-            pencereler.append({
-                "baslik": maskele(bilgi.name),
-                "sinif": bilgi.class_name,
-                "framework": bilgi.framework_id,
-                "pid": bilgi.process_id,
-            })
-    return pencereler
-
-
-def uia_agaci(baslik_deseni, max_derinlik, max_oge):
-    try:
-        from pywinauto import Desktop
-    except ImportError:
-        return "<pywinauto kurulu degil: pip install pywinauto>"
-    desen = re.compile(baslik_deseni, re.IGNORECASE)
-    adaylar = [p for p in Desktop(backend="uia").windows() if desen.search(p.element_info.name or "")]
-    if not adaylar:
-        return f"<'{baslik_deseni}' ile eslesen pencere yok>"
-
-    sayac = {"n": 0}
-
-    def dugum(sarmalayici, derinlik):
-        sayac["n"] += 1
-        bilgi = sarmalayici.element_info
-        r = bilgi.rectangle
-        kayit = {
-            "tip": bilgi.control_type,
-            "ad": maskele(bilgi.name),
-            "automation_id": bilgi.automation_id,
-            "sinif": bilgi.class_name,
-            "framework": bilgi.framework_id,
-            "etkin": bilgi.enabled,
-            "gorunur": bilgi.visible,
-            "dikdortgen": [r.left, r.top, r.right, r.bottom],
-        }
-        if derinlik < max_derinlik and sayac["n"] < max_oge:
-            try:
-                cocuklar = sarmalayici.children()
-            except Exception:  # bazi 3. parti kontroller UIA'da hata verir
-                kayit["cocuklar"] = "<okunamadi>"
-                return kayit
-            if cocuklar:
-                kayit["cocuklar"] = [dugum(c, derinlik + 1) for c in cocuklar if sayac["n"] < max_oge]
-        return kayit
-
-    return [dugum(p, 0) for p in adaylar]
-
-
 def main():
     ayrac = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ayrac.add_argument("--pencere", help="UIA agaci dokulecek pencere basligi (regex), orn. 'Teklif'")
-    ayrac.add_argument("--derinlik", type=int, default=25)
-    ayrac.add_argument("--max-oge", type=int, default=5000)
     ayrac.add_argument("--cikti", default=f"ortam_raporu_{datetime.now():%Y%m%d_%H%M%S}.json")
     args = ayrac.parse_args()
 
@@ -209,15 +138,12 @@ def main():
         "kutuphaneler": kutuphaneler(),
         "ilgili_surecler": ilgili_surecler(),
         "ilgili_kurulumlar": ilgili_kurulumlar(),
-        "ust_pencereler": ust_pencereler() if os.name == "nt" else None,
     }
-    if args.pencere:
-        rapor["uia_agaci"] = uia_agaci(args.pencere, args.derinlik, args.max_oge)
 
     Path(args.cikti).write_text(json.dumps(rapor, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Rapor yazildi: {Path(args.cikti).resolve()}")
     if os.name != "nt":
-        print("Uyari: Windows disinda calisti; pencere/UIA bilgisi toplanmadi.")
+        print("Uyari: Windows disinda calisti; ekran ve kurulum bilgisi toplanmadi.")
 
 
 if __name__ == "__main__":

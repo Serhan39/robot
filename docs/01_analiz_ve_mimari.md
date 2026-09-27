@@ -1,8 +1,13 @@
 # FAZ 1–2 Analiz Raporu ve Teknik Mimari Önerisi
 
 > Durum: **Taslak – kullanıcıdan bilgi bekleniyor.**
+> **Temel ilke (kullanıcı kararı):** Robot, Open Hızlı Teklif'i **sizin yerinize, bir insan gibi**
+> kullanır: ekranı görür (ekran görüntüsü + OCR + görüntü tanıma), klavye ve fareyle çalışır.
+> Programın içine girilmez: program dosyalarına, veritabanına, ağ trafiğine, iç yapısına veya
+> erişilebilirlik ağacına (UI Automation) dokunulmaz; programda hiçbir değişiklik yapılmaz.
+>
 > Bu belge kod yazmadan önce hazırlanan analiz ve mimari önerisidir. Open Hızlı Teklif
-> ekranları görülmeden otomasyon kodu kesinleştirilmeyecektir (bkz. Bölüm 12 – Sorular).
+> ekranları görülmeden otomasyon kodu kesinleştirilmeyecektir (bkz. Bölüm 15 – Sorular).
 
 ---
 
@@ -20,7 +25,7 @@ varsayım yapmıyorum.
 | Sizin Python / Node sürümünüz | **Bilinmiyor** → aynı betik |
 | Ekran çözünürlüğü / DPI ölçekleme | **Bilinmiyor** → aynı betik |
 | Tesseract / OCR kurulu mu | **Bilinmiyor** → aynı betik |
-| Open Hızlı Teklif UI Automation ağacı | **Bilinmiyor** → aynı betik (`--pencere` parametresi) |
+| Open Hızlı Teklif ekranları ve kullanım adımları | **Bilinmiyor** → ekran görüntüleri + ekran kaydı (sizden) |
 | `robot` deposu | Boş (ilk commit bu rapor) |
 
 ### Yapmanız gereken (5 dakika)
@@ -30,15 +35,13 @@ Open Hızlı Teklif'in **kurulu olduğu Windows bilgisayarda**:
 ```powershell
 # 1) Python 3.11+ kurulu değilse: https://www.python.org/downloads/windows/
 # 2) İsteğe bağlı ama çok faydalı:
-pip install pywinauto psutil
-# 3) Open Hızlı Teklif'i açın, giriş yapın, BOŞ bir trafik teklif ekranına gelin
-#    (gerçek müşteri verisi görünmesin).
-# 4) Çalıştırın:
-python tools\ortam_analizi.py --pencere "Teklif"
+# 2) Çalıştırın (ek kurulum gerekmez):
+python tools\ortam_analizi.py
 ```
 
-Oluşan `ortam_raporu_*.json` dosyasını bana gönderin. Betik şifre, alan değeri veya
-pano içeriği **okumaz**; 6+ haneli sayı dizilerini maskeler. Yine de göndermeden önce göz atın.
+Oluşan `ortam_raporu_*.json` dosyasını bana gönderin. Betik yalnızca bilgisayar bilgilerini
+(Windows/Python sürümü, ekran çözünürlüğü, DPI, kurulu kütüphaneler) toplar; Open Hızlı Teklif'e
+dokunmaz, ekran görüntüsü almaz.
 
 ---
 
@@ -49,7 +52,7 @@ pano içeriği **okumaz**; 6+ haneli sayı dizilerini maskeler. Yine de gönderm
 | Bulgu | Kaynak | Otomasyona etkisi |
 |---|---|---|
 | Üretici: **Open Yazılım** (Düzce) | openyazilim.com | – |
-| Kurulum: **Windows x64 MSI** ve **ClickOnce** | ürün sayfası | ClickOnce yalnızca **.NET** uygulamaları için kullanılır → program büyük olasılıkla **.NET (WinForms veya WPF) masaüstü uygulaması**. Bu, **Windows UI Automation** için iyi haber. |
+| Kurulum: **Windows x64 MSI** ve **ClickOnce** | ürün sayfası | Program büyük olasılıkla bir **Windows masaüstü uygulaması** → robot aynı Windows oturumunda ekranı görüp klavye/fare kullanacak. |
 | Branşlar: Trafik, Kasko, TSS, Konut, DASK, İMM | ürün sayfası | Workflow motoru ürün bazlı olmalı. |
 | Çoklu şirketten otomatik teklif ("robot teknolojisi") | basın | Sonuç ekranı muhtemelen **birden çok şirketin fiyatını içeren bir tablo (grid)**. Tek satır değil, liste okunacak. |
 | **Fiyatları dışa aktarma** | ürün sayfası | Sonuçları OCR yerine **dışa aktarılan dosyadan (Excel/PDF) okumak** en güvenilir yol olabilir. Doğrulanmalı. |
@@ -59,11 +62,11 @@ pano içeriği **okumaz**; 6+ haneli sayı dizilerini maskeler. Yine de gönderm
 | Mobil/tablet üzerinden kullanım | basın | Bir **web/mobil arayüzü** de olabilir. Varsa Playwright ile web otomasyonu masaüstünden daha sağlam olabilir → **size soruyorum** (Soru 2). |
 | Resmi **API**: yok (sizin bilginiz) | – | API varmış gibi davranılmayacak. |
 
-**Doğrulanmamış hipotezler** (ekran görüntüsü/ağaç dökümü ile kontrol edilecek):
-- WinForms mu WPF mu? (`framework_id` alanı söyleyecek)
-- DevExpress / Telerik gibi 3. parti kontroller kullanılıyor mu? (grid okunabilirliğini belirler)
-- Alanların `AutomationId` değerleri sabit mi? (sabitse koordinat/OCR'a neredeyse hiç gerek kalmaz)
-- Sonuç tablosu UIA ile satır/hücre olarak okunabiliyor mu?
+**Ekran görüntüleri ve kayıt ile kontrol edilecekler:**
+- Alanlar arasında **Tab** ile sırayla gezilebiliyor mu? Sıra sabit mi? (İnsan gibi en sağlam yol)
+- Klavye kısayolları var mı (ör. F-tuşları, Alt+harf, Enter ile "Teklif Al")?
+- Açılır listeler klavyeyle (harf yazarak) seçilebiliyor mu?
+- Sonuç tablosu ekranda okunaklı mı, kaydırma gerekiyor mu? Dışa aktarma menüsü nerede?
 - Sigorta şirketlerinden sonuçlar asenkron mu geliyor (tek tek mi doluyor)? → "bekle" koşulu buna göre yazılacak.
 
 ---
@@ -72,12 +75,12 @@ pano içeriği **okumaz**; 6+ haneli sayı dizilerini maskeler. Yine de gönderm
 
 | Katman | Seçim | Neden | Elenen / ikincil |
 |---|---|---|---|
-| Ana dil | **Python 3.11+** | RPA (pywinauto, OpenCV, OCR), FastAPI ve LLM SDK'larının hepsi aynı dilde; tek dil = kolay bakım. | Node.js yalnızca gerekirse (ör. panel build). |
-| Masaüstü otomasyon (1. öncelik) | **pywinauto – UIA backend** | .NET uygulamalarında AutomationId/Name/ControlType ile koordinatsız erişim; çözünürlükten bağımsız. | `win32` backend: eski kontroller için yedek. |
+| Ana dil | **Python 3.11+** | Ekran okuma (OpenCV, OCR), klavye/fare, FastAPI ve LLM SDK'larının hepsi aynı dilde; tek dil = kolay bakım. | Node.js yalnızca gerekirse (ör. panel build). |
+| Ekranı görme | **mss** (hızlı ekran görüntüsü) + OCR + OpenCV | Robot sizin gördüğünüzü görür; programın içine girilmez. | UI Automation / program içi erişim: **kullanılmayacak** (kullanıcı kararı). |
 | Web otomasyon (program web ise) | **Playwright** | Otomatik bekleme, sağlam seçiciler, iz (trace) kaydı. | Selenium: daha kırılgan, bekleme yönetimi zayıf. |
 | OCR | **Tesseract (tur)** + ön işleme | Hafif, yerel çalışır (KVKK), Türkçe dil paketi var. UI yazıları için yeterli. | **PaddleOCR**: daha isabetli ama ağır; Tesseract yetersiz kalırsa eklenti olarak. EasyOCR: PlakaTanima'da kullanılıyor ama UI metninde Tesseract+ön işleme yeterli. |
 | Görüntü tanıma | **OpenCV** çok ölçekli şablon eşleştirme | Düğme ikonlarını DPI/çözünürlük değişse de bulmak için. | – |
-| Klavye/mouse (son çare + eğitim kaydı) | **pynput** (kayıt), **pywinauto.mouse/keyboard** (oynatma) | pynput global kanca ile eğitim modunda tıklama/tuş yakalar. | PyAutoGUI: yalnızca koordinat bazlı, DPI sorunlu → ikincil. |
+| Klavye/fare | **pynput** (eğitimde kayıt + oynatma) | Tıklama/tuşları kaydeder ve insan gibi tekrar eder; Türkçe karakterleri doğru yazar. | PyAutoGUI: Türkçe karakter ve DPI sorunları → ikincil. |
 | API / panel backend | **FastAPI** | Webhook, panel API'si, tip güvenliği (pydantic). | – |
 | Veritabanı | **SQLite (WAL) → PostgreSQL'e hazır**, SQLAlchemy + Alembic | Tek Windows PC için kurulum gerektirmez; ORM sayesinde Postgres'e geçiş tek ayar. | Doğrudan Postgres: ikinci makine/robot eklenince. |
 | İş kuyruğu | **Veritabanı tabanlı kuyruk** (`jobs` tablosu, kiralama + heartbeat) | **Celery Windows'u resmi olarak desteklemiyor**; Redis Windows'ta resmi değil. Robot zaten tek-işlem (tek masaüstü) olduğu için DB kuyruğu yeterli, ek servis yok, kalıcı ve denetlenebilir. | Redis+RQ/Celery: robotlar ayrı Linux sunuculara taşınırsa. |
@@ -121,7 +124,7 @@ Windows masaüstü bildirimi + e-posta yedek. Bildirim katmanı çok kanallı ta
                 │                              [Robot Worker süreci]                     │
                 │                                          │                             │
                 │                               Workflow Motoru ─► Sürücüler:            │
-                │                                 UIA ► (Web) ► OCR ► Görüntü ► Koordinat│
+                │                                 Klavye ► OCR ► Görüntü ► Pencere-oransal  │
                 │                                          │                             │
                 │                                  Open Hızlı Teklif                     │
                 │                                          │                             │
@@ -156,7 +159,7 @@ robot/
     notifications/  # urgent.py
   automation/
     core/           # workflow_engine.py, actions.py, locators.py, verify.py, safety.py
-    drivers/        # uia_driver.py, web_driver.py, ocr_driver.py, vision_driver.py, coord_driver.py
+    drivers/        # screen.py (görüntü al), input.py (klavye/fare), ocr_driver.py, vision_driver.py, coord_driver.py
     training/       # recorder.py, element_capture.py, workflow_builder.py
     open_hizli_teklif/
       login.py navigation.py customer.py vehicle.py quotation.py
@@ -217,13 +220,20 @@ WAITING_CUSTOMER → (ret / zaman aşımı) → CLOSED
 
 ### 8.1 Locator (hedef bulma) stratejisi — öncelik sırası
 
-Her hedef (ör. `plaka`, `teklif_al`) birden fazla locator ile tanımlanır; motor sırayla dener:
+Robot hedefi bir insanın bulacağı gibi bulur. Her hedef (ör. `plaka`, `teklif_al`) birden
+fazla yolla tanımlanır; motor sırayla dener:
+
+1. **Klavye:** kısayol veya Tab sırası (ör. "Plaka" alanına formu açtıktan sonra 3×Tab).
+   Ekrandaki yerleşimden bağımsızdır, en sağlam yoldur. Her tuştan sonra ekranla doğrulanır.
+2. **Ekrandaki yazı (OCR):** "Teklif Al" yazısını bul, üstüne tıkla; "Plaka" etiketini bul,
+   yanındaki kutuya tıkla.
+3. **Görüntü:** düğme/ikon görüntüsünü çok ölçekli ara (çözünürlük/DPI değişse de bulur).
+4. **Pencereye göre oransal konum:** son çare; kullanılınca log'a uyarı düşer.
 
 ```json
 {
   "teklif_al": [
-    {"by": "uia", "automation_id": "btnTeklifAl"},
-    {"by": "uia", "name": "Teklif Al", "control_type": "Button"},
+    {"by": "keys", "keys": "F5"},
     {"by": "ocr", "text": "Teklif Al", "region": "window"},
     {"by": "image", "template": "teklif_al.png", "scales": [0.75, 1.0, 1.25, 1.5]},
     {"by": "coord", "rel_x": 0.82, "rel_y": 0.91}
@@ -239,7 +249,7 @@ Koordinatlar ekrana değil **pencereye göre oransal** saklanır ve yalnızca so
 |---|---|
 | `open_application` | Süreç ve ana pencere belirdi mi; giriş ekranı mı ana ekran mı? |
 | `click` | Beklenen etki oldu mu (yeni pencere/sekme, odak değişimi, öğe durumu) — adım tanımında `expect` alanı. |
-| `input` | Alan değeri geri okunup karşılaştırılır (UIA ValuePattern; yoksa OCR). |
+| `input` | Alanın bulunduğu bölge OCR ile okunup yazılan değerle karşılaştırılır. |
 | `select` | Seçili öğe geri okunur. |
 | `wait_for` | Koşul + zaman aşımı; süre dolarsa hata, **asla sonsuz bekleme yok.** |
 | `extract` | Şema doğrulaması (prim > 0, sayı formatı, tarih formatı, şirket adı boş değil). |
@@ -253,7 +263,7 @@ hâlâ olmuyorsa `MANUAL_INTERVENTION` + hata ekran görüntüsü.
 
 `automation/core/safety.py` içinde **kod seviyesinde** bir yasak listesi olacak:
 "Poliçeleştir", "Poliçe Kes", "Satın Al", "Ödeme", "Tahsilat", "Onayla ve Bitir" vb.
-Locator'ın çözdüğü öğenin adı/metni bu listeye uyuyorsa tıklama **reddedilir**, iş durur ve
+Her tıklamadan (ve Enter tuşundan) önce hedef bölge OCR ile okunur; metin bu listeye uyuyorsa işlem **reddedilir**, iş durur ve
 size bildirim gider. Bu kontrol workflow dosyasıyla kapatılamaz.
 
 ### 8.4 Workflow formatı (örnek)
@@ -283,15 +293,17 @@ Farklı program = yeni `automation/<program_adi>/` paketi + locator dosyası.
 
 ### 8.5 Teklif sonucu okuma — öncelik
 
-1. **Programın dışa aktarma özelliği** (Excel/CSV varsa) → dosya parse → en güvenilir.
-2. **UIA grid okuma** (satır/hücre) → koordinatsız.
-3. **OCR** (tablo bölgesi, ön işleme, sütun hizalama) → doğrulayıcılarla.
+1. **Programın dışa aktarma menüsü** (bir insanın yapacağı gibi menüden "Dışa Aktar"a tıklayıp
+   Excel/PDF kaydetmek) → dosya okunur → en güvenilir. Programın içine girilmez, sadece
+   programın zaten sunduğu çıktı kullanılır.
+2. **Ekrandaki tablonun OCR ile okunması** (bölge tespiti, ön işleme, sütun hizalama, gerekirse
+   kaydırarak) → doğrulayıcılarla.
 
 Çıktı (her şirket için bir kayıt):
 
 ```json
 {"company": "ABC Sigorta", "premium": 8750.00, "currency": "TRY",
- "quotation_number": "12345678", "valid_until": "2026-09-27", "source": "export|uia|ocr",
+ "quotation_number": "12345678", "valid_until": "2026-09-27", "source": "export|ocr",
  "confidence": 0.98}
 ```
 
@@ -304,7 +316,6 @@ OCR kaynaklı ve düşük güvenli sonuçlar müşteriye **otomatik gönderilmez
 **Kayıt sırasında her olay için:**
 - zaman damgası ve önceki adımdan beri geçen süre (bekleme tahmini için),
 - aktif pencere (başlık, süreç, pencere dikdörtgeni),
-- tıklanan noktadaki **UIA öğesi** (`from_point`): AutomationId, Name, ControlType, ClassName, ata yolu,
 - öğenin çevresinden kırpılmış görüntü (şablon eşleştirme için),
 - öğe çevresinin OCR metni,
 - pencereye göre oransal koordinat,
@@ -314,7 +325,7 @@ OCR kaynaklı ve düşük güvenli sonuçlar müşteriye **otomatik gönderilmez
 - Eğitimi **test müşteri verileriyle** yaparsınız. Kaydedici, girilen değeri test profilindeki
   değerlerle karşılaştırıp otomatik olarak `{{PLAKA}}`, `{{TC_KIMLIK}}`… değişkenine çevirir.
   Eşleşmeyen serbest metin için panel "Bu değer sabit mi, değişken mi?" diye sorar.
-- UIA `IsPassword` alanlarına yazılanlar **hiç kaydedilmez**, `{{SECRET:login_password}}` olur.
+- **Giriş ekranında kayıt duraklatılır**; şifre hiçbir zaman kaydedilmez, workflow'da `{{SECRET:login_password}}` olur.
 - Eğitim ekran görüntüleri test verisiyle alındığı için saklanabilir; yine de maskelenir.
 
 **Kayıttan workflow'a:** Kaydedici ham olay günlüğü üretir → `workflow_builder` bunu
@@ -352,7 +363,7 @@ kuru çalıştırma (dry-run) ile test → yayımla (versiyonlu).
 - Sadece teklif için gerekli alanlar istenir/saklanır; ürün bazlı zorunlu alan listesi.
 - TC kimlik, doğum tarihi, ruhsat seri no → **alan bazlı şifreli**; loglarda maskeli (`*******1234`).
 - Loglarda şifre/token/tam TC **yazılmaz** (merkezi redaksiyon filtresi).
-- Ekran görüntülerinde hassas alanlar UIA dikdörtgenleri üzerinden **bulanıklaştırılır**;
+- Ekran görüntülerinde hassas alanlar (eğitimde işaretlenen bölgeler + OCR ile bulunan TC/plaka) **bulanıklaştırılır**;
   saklama süresi config'ten (ör. 30 gün) sonra otomatik silinir.
 - LLM sağlayıcısına veri **yurt dışına aktarım** sayılabilir: TC vb. maskelenerek gönderilir;
   aydınlatma metni ve gerekiyorsa açık rıza/aktarım mekanizması için hukuki kontrol önerilir.
@@ -379,13 +390,12 @@ uygulaması) üzerinde workflow motoru testi. Uçtan uca: WhatsApp Cloud API tes
 | Risk | Etki | Önlem |
 |---|---|---|
 | **2FA / oturum zaman aşımı** | Giriş otomatikleşmeyebilir | Oturumu açık tut; giriş ekranı algılanınca size bildirim + MANUEL |
-| Windows oturumu kilitli/ekran koruyucu | UIA ve mouse çalışmaz | Robot PC'sinde kilitlenme kapalı ayrı kullanıcı oturumu (veya VM/RDP'de ayrı oturum) |
+| Windows oturumu kilitli/ekran koruyucu | Ekran görülemez, klavye/fare çalışmaz | Robot PC'sinde kilitlenme kapalı ayrı kullanıcı oturumu (veya VM/RDP'de ayrı oturum) |
 | Program güncellemesi ekranı değiştirir | Locator kırılır | Çoklu locator + "ekran değişti" algılama + yeniden eğitim |
-| 3. parti grid (DevExpress vb.) UIA'ya kapalı | Sonuç okunamaz | Dışa aktarma → OCR |
+| Sonuç tablosu küçük yazı/kaydırmalı | OCR hatası | Dışa aktarma menüsü; OCR'da ön işleme + doğrulayıcılar |
 | Sigorta şirketi cevap vermez / yavaş | Eksik sonuç | Zaman aşımı + kısmi sonuçla "gelenler" veya MANUEL (sizin tercihiniz) |
 | CAPTCHA | Otomasyon durur | Çözmeye çalışılmaz; MANUEL |
 | DPI ölçekleme (%125/%150) | Koordinat/şablon kayar | Process DPI-aware, çok ölçekli şablon, oransal koordinat |
-| Open Yazılım kullanım sözleşmesi | Otomasyon izni belirsiz | **Lisans şartlarını kontrol etmenizi / üreticiye sormanızı öneririm** |
 | WhatsApp 24 saat kuralı | Geç teklif gönderilemez | Onaylı "teklifiniz hazır" şablonu |
 
 ---
@@ -397,7 +407,7 @@ uygulaması) üzerinde workflow motoru testi. Uçtan uca: WhatsApp Cloud API tes
 | 1–2 | Bu rapor + `ortam_analizi.py` çıktısı + ekran görüntüleri/kayıt | **Sizden bilgi** |
 | 3 | WhatsApp kanal soyutlaması + Cloud API + konsol (TEST) kanalı | Soru 4–6 |
 | 4 | DB modelleri + Alembic + şifreleme + redaksiyon | – |
-| 5 | Eğitim modu kaydedici | UIA dökümü |
+| 5 | Eğitim modu kaydedici | Ekran görüntüleri/kayıt |
 | 6 | Workflow motoru + sürücüler + güvenlik kilidi + dry-run | – |
 | 7–8 | Open Hızlı Teklif paketi + sonuç okuma | Ekran görüntüleri, eğitim kaydı |
 | 9–11 | Müşteri mesajları, onay sınıflandırıcı, acil bildirim | Soru 10 |
@@ -426,7 +436,7 @@ DRY_RUN ile) geliştirilebilir. **Faz 7–8 ekranlar görülmeden kesinleştiril
 12. Test için **sahte müşteri verileri** (TC algoritmasına uygun test TC, test plakası) — veya gerçek test aracınız/kendi aracınız?
 13. Müşteriye birden fazla şirketin teklifi mi gönderilsin, yalnızca en ucuzu mu, en ucuz 3 mü?
 14. Robot hangi bilgisayarda çalışacak: sizin günlük kullandığınız PC mi (robot çalışırken fareyi kullanamazsınız), ayrı bir PC/VM mi?
-15. `tools/ortam_analizi.py` çıktısı.
+15. `tools/ortam_analizi.py` çıktısı (sadece bilgisayar bilgisi).
 
 ---
 
