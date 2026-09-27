@@ -73,7 +73,7 @@ dokunmaz, ekran görüntüsü almaz.
 | Branşlar: Trafik, Kasko, TSS, Konut, DASK, İMM | ürün sayfası | Workflow motoru ürün bazlı olmalı. |
 | Çoklu şirketten otomatik teklif ("robot teknolojisi") | basın | Sonuç ekranı muhtemelen **birden çok şirketin fiyatını içeren bir tablo (grid)**. Tek satır değil, liste okunacak. |
 | **Fiyatları dışa aktarma** | ürün sayfası | Sonuçları OCR yerine **dışa aktarılan dosyadan (Excel/PDF) okumak** en güvenilir yol olabilir. Doğrulanmalı. |
-| **İki faktörlü doğrulama (2FA)** | ürün sayfası | Girişin tam otomatik yapılması mümkün/uygun olmayabilir. Oturum açık tutulmalı; 2FA istenirse robot **MANUEL MÜDAHALE**'ye geçip sizi uyarmalı. |
+| **İki faktörlü doğrulama (2FA)**: SMS / Google Authenticator | ürün sayfası + giriş ekranı | **Karar:** Programı açma ve giriş **kullanıcıda**. Robot giriş bilgisi tutmaz; giriş ekranını görürse durur ve bildirir (bkz. `02_ekran_analizi.md`). |
 | Uygulama içinden **poliçeleştirme** mümkün | basın ("teklif alıp poliçeleştirebildiği") | **Kritik risk.** Robotun "Poliçeleştir / Satın Al / Onayla" gibi düğmelere basması motor seviyesinde **yasaklanmalı** (bkz. 8.3). |
 | QR ile ruhsat okuma, Tramer entegrasyonu | ürün sayfası | Plaka + TC/VKN + belge seri no ile araç bilgisi otomatik gelebilir → müşteriden daha az bilgi istemek yeterli olabilir. Doğrulanmalı. |
 | Mobil/tablet üzerinden kullanım | basın | Bir **web/mobil arayüzü** de olabilir. Varsa Playwright ile web otomasyonu masaüstünden daha sağlam olabilir → **size soruyorum** (Soru 2). |
